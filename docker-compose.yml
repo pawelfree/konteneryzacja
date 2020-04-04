@@ -1,0 +1,35 @@
+version: "2"
+services:
+  node:
+    container_name: node
+    image: paweldudek/node
+    build:
+      context: ./node
+    volumes:
+      - /app/node_modules
+      - ./node/src:/app/src
+    ports:
+      - 4200:3000
+    command: npm run start
+  oracle: 
+    container_name: oracle
+    image: paweldudek/oracle
+    build: 
+      context: ./oracle 
+    ports: 
+      - 1521:1521
+    environment: 
+      - ORACLE_ALLOW_REMOTE=true
+  wildfly:
+    container_name: wildfly
+    image: paweldudek/wildfly
+    build:
+      context: ./wildfly
+    ports:
+      - 8080:8080
+      - 9990:9990
+    volumes: 
+      - ./logs:/opt/jboss/wildfly/standalone/log
+    depends_on: 
+      - oracle
+    command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0 --debug
